@@ -1,6 +1,6 @@
 package com.example.genet42.kubaruchan.statistics;
 
-import java.util.Date;
+import java.util.Calendar;
 
 /**
  * アンケートの結果を管理するクラス
@@ -33,10 +33,10 @@ public class StatisticsSystem {
     /**
      * 試食品の評価を登録する
      *
-     * @param date 評価の日時
+     * @param calendar 評価の日時
      * @param eval 評価の値
      */
-    public void put(Date date, Evaluation eval) {
+    public void put(Calendar calendar, Evaluation eval) {
         //評価をCSVに書き込む
     }
 
