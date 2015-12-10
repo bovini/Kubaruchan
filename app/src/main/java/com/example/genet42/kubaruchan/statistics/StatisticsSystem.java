@@ -12,6 +12,10 @@ public class StatisticsSystem {
     private static StatisticsSystem instance;
 
     /**
+     * CSVManager
+     */
+
+    /**
      * 外から生成させないコンストラクタ
      */
     private StatisticsSystem(){
@@ -37,7 +41,10 @@ public class StatisticsSystem {
      * @param eval 評価の値
      */
     public void put(Calendar calendar, Evaluation eval) {
+
         //評価をCSVに書き込む
     }
+
+
 
 }
