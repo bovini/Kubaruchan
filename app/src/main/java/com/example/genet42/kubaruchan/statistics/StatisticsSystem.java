@@ -40,9 +40,8 @@ public class StatisticsSystem {
      * @param calendar 評価の日時
      * @param eval 評価の値
      */
-    public void put(Calendar calendar, Evaluation eval) {
-
-        //評価をCSVに書き込む
+    public void putCSV(Calendar calendar, Evaluation eval) {
+        CSVManager.getInstance().addEvaluation(calendar, eval);
     }
 
 

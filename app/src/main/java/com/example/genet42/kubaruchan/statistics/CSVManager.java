@@ -1,9 +1,14 @@
 package com.example.genet42.kubaruchan.statistics;
 
+import android.app.UiModeManager;
 import android.os.Environment;
 import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,9 +21,43 @@ import java.util.Locale;
  */
 public class CSVManager {
     /**
+     * csvファイルにおける日付の位置
+     */
+    private final static int INDEX_DAY = 0;
+
+    /**
+     * csvファイルにおける日付うーんの位置
+     */
+    private final static int INDEX_UMMM = 1;
+
+    /**
+     * csvファイルにおけるまあまあの位置
+     */
+    private final static int INDEX_SOSO = 2;
+
+    /**
+     * csvファイルにおけるよいの位置
+     */
+    private final static int INDEX_GOOD = 3;
+
+    /**
+     * 一ヶ月の最大の日数
+     */
+    public static final int MAX_DAYS = 31;
+
+    /**
+     *
+     */
+    public static final int COLUMN = 4;
+    /**
+     *評価値の最大値
+     */
+    public static final int MAX_EVALUATION = 40;
+    /**
      * 外部ストレージ(SDカード)の場所
      */
     private final static File PATH = Environment.getExternalStorageDirectory();
+
 
     /**
      * インスタンス
@@ -50,12 +89,15 @@ public class CSVManager {
      * @param calendar 日付
      * @param eval 評価
      */
-    public void addEvalaution(Calendar calendar, Evaluation eval){
+    public void addEvaluation(Calendar calendar, Evaluation eval){
+
         SimpleDateFormat fnm = new SimpleDateFormat("yyyy_mm", Locale.JAPAN);
         SimpleDateFormat d = new SimpleDateFormat("dd", Locale.JAPAN);
+
+        int day = Integer.parseInt(d.format(calendar.getTime()));
         String filename = fnm.format(calendar.getTime());
-        String day = d.format(calendar.getTime());
-        updateCSV(PATH + filename, day ,eval);
+
+        updateCSV(PATH +"/"+ filename, day, eval);
     }
 
     /**
@@ -67,27 +109,117 @@ public class CSVManager {
      * @param day 日付
      * @param eval 評価
      */
-    private void updateCSV(String filepath, String day, Evaluation eval){
+    private void updateCSV(String filepath, int day, Evaluation eval){
+
         File file = new File(filepath+"csv");
-        boolean fileexist;
-        fileexist = false;
         try {
-            fileexist = !file.createNewFile();
-        }catch(IOException e){
+            if(!file.createNewFile()){
+                overwrite(filepath, day, eval);
+            }
+            else{
+
+            }
+
+        } catch(IOException e) {
             e.printStackTrace();
         }
-        if(fileexist){
-            //すでにファイルがあった場合の処理
-            /*
-            ファイルを開いて日付を確認し，受け取った日付と同じ日付の行があればその行の評価を更新する
-            同じ日付の行でなければ新たな行に評価を追記する
-             */
-        }
-        else{
-            //ファイルがなかった場合の処理
-            /*
-            作成したファイルを開き，新たに評価を記入する
-             */
+
+    }
+
+    /**
+     * ファイルを上書きする
+     *  @param filepath ファイルの保存先
+     * @param day 日付
+     * @param eval 評価
+     */
+    private void overwrite(String filepath, int day, Evaluation eval) throws IOException {
+
+        int [][] toWrite = readCSV(filepath);
+        initializeNullRows(toWrite);
+        updateRow(day, eval, toWrite);
+        writeAsCSV(filepath, toWrite);
+
+    }
+
+    /**
+     * 押されたボタンの評価をデータに反映させる
+     * @param day 日付
+     * @param eval 評価
+     * @param toUpdate 反映先のデータ
+     */
+    private void updateRow(int day, Evaluation eval, int[][] toUpdate) {
+        switch (eval){
+            case UMMM:
+                toUpdate[day - 1][INDEX_UMMM]++;
+                break;
+            case SOSO:
+                toUpdate[day - 1][INDEX_SOSO]++;
+                break;
+            case GOOD:
+                toUpdate[day - 1][INDEX_GOOD]++;
+                break;
         }
     }
+
+    /**
+     * nullの行を初期化する
+     * @param toInitialize 行を初期化する対象のデータ
+     */
+    private void initializeNullRows(int[][] toInitialize) {
+        for(int i = 0; i < MAX_DAYS; i++){
+            if(toInitialize[i] == null){
+                toInitialize [i] = new int [COLUMN];
+                toInitialize [i] [INDEX_DAY] = i + 1;
+                toInitialize [i] [INDEX_UMMM] = 0;
+                toInitialize [i] [INDEX_SOSO] = 0;
+                toInitialize [i] [INDEX_GOOD] = 0;
+            }
+        }
+    }
+
+    /**
+     * csvファイルを読み込み,[行][列]の形式で返す
+     * @param filepath 読込先のファイル
+     * @return 読み込んだファイル
+     * @throws IOException
+     */
+    private int[][] readCSV(String filepath) throws IOException {
+        int [][] results = new int[MAX_DAYS][];
+
+        FileReader fr = new FileReader(filepath);
+        BufferedReader br = new BufferedReader(fr);
+        String line;
+        while (( line = br.readLine()) != null) {
+            String [] result = line.split(",");
+            int d = Integer.parseInt(result[INDEX_DAY]);
+            results [ d - 1 ] = new int[result.length];
+            for( int i = 0; i < result.length; i++ ) {
+                results[ d - 1 ] [i] = Integer.parseInt(result[i]);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * 指定されたファイルパスに指定されたデータをcsvとして書き込む
+     * @param filepath ファイルパス
+     * @param toWrite 書き込むデータ([行][列]の形式で定義される)
+     * @throws IOException
+     */
+    private void writeAsCSV(String filepath, int[][] toWrite) throws IOException {
+        FileWriter fw = new FileWriter(filepath);
+        for(int i = 0; i < toWrite.length; i++){
+            for(int j = 0; j < COLUMN; j++) {
+                fw.write(Integer.toString(toWrite[i][j]));
+                if(j < COLUMN - 1){
+                    fw.write(",");
+                }
+                else{
+                    fw.write("\n");
+                }
+            }
+        }
+    }
+
+
 }
