@@ -4,6 +4,9 @@ import android.app.UiModeManager;
 import android.os.Environment;
 import android.util.Log;
 
+import org.afree.data.category.CategoryDataset;
+import org.afree.data.category.DefaultCategoryDataset;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,8 +15,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -208,17 +213,76 @@ public class CSVManager {
      */
     private void writeAsCSV(String filepath, int[][] toWrite) throws IOException {
         FileWriter fw = new FileWriter(filepath);
-        for(int i = 0; i < toWrite.length; i++){
-            for(int j = 0; j < COLUMN; j++) {
+        for (int i = 0; i < toWrite.length; i++) {
+            for (int j = 0; j < COLUMN; j++) {
                 fw.write(Integer.toString(toWrite[i][j]));
-                if(j < COLUMN - 1){
+                if (j < COLUMN - 1) {
                     fw.write(",");
-                }
-                else{
+                } else {
                     fw.write("\n");
                 }
             }
         }
+    }
+
+    /**
+     * あるファイル名を入力するとそのファイルを元に作成したグラフのデータセットを返す
+     * @param filename ファイル名
+     * @return グラフ作成用のデータセット
+     */
+    public CategoryDataset makeDataset(String filename){
+        return getDataset(PATH + "/" + filename);
+    }
+
+    /**
+     * 保存されているcsvファイルの一覧を返す
+     * @return
+     */
+    public List<String> getCSVList(){
+        List <String> csvList = new ArrayList<String>();
+        File [] csvFile = new File(PATH.getPath()).listFiles();
+        for(int i = 0; i < csvFile.length; i++){
+            if(csvFile[i].isFile() && csvFile[i].getName().endsWith(".csv")){
+                csvList.add(csvFile[i].getName());
+            }
+        }
+        return csvList;
+    }
+
+    /**
+     * あるcsvファイルのパスを入力するとグラフのデータセットを返す
+     * @param filepath ファイルのパス
+     * @return グラフ用のデータセット
+     */
+    private CategoryDataset getDataset(String filepath){
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        int evaluations[][] = new int[COLUMN][];
+        try {
+            evaluations = readCSV(filepath);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        String UMMM = "UMMM";
+        String SOSO = "SOSO";
+        String GOOD = "GOOD";
+        for(int i = 0; i< evaluations.length; i++){
+            for(int j = 0; j< evaluations[i].length; j++){
+                switch (j) {
+                    case INDEX_SOSO:
+                        dataset.addValue(evaluations[i][j], SOSO, String.valueOf(i + 1));
+                        break;
+                    case INDEX_UMMM:
+                        dataset.addValue(evaluations[i][j], UMMM, String.valueOf(i + 1));
+                        break;
+                    case INDEX_GOOD:
+                        dataset.addValue(evaluations[i][j], GOOD, String.valueOf(i + 1));
+                        break;
+
+                }
+            }
+        }
+
+        return dataset;
     }
 
 
