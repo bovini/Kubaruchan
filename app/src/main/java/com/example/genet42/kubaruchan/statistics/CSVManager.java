@@ -230,7 +230,7 @@ public class CSVManager {
      * @param filename ファイル名
      * @return グラフ作成用のデータセット
      */
-    public CategoryDataset makeDataset(String filename){
+    public DefaultCategoryDataset makeDataset(String filename){
         return getDataset(PATH + "/" + filename);
     }
 
@@ -254,7 +254,7 @@ public class CSVManager {
      * @param filepath ファイルのパス
      * @return グラフ用のデータセット
      */
-    private CategoryDataset getDataset(String filepath){
+    private DefaultCategoryDataset getDataset(String filepath){
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         int evaluations[][] = new int[COLUMN][];
         try {

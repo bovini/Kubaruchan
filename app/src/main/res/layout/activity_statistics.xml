@@ -13,7 +13,7 @@
     <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/spinner"
+        android:id="@+id/CSVSelector"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/TEXT_GOOD"
@@ -50,7 +50,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/spinner"
+        android:layout_below="@+id/CSVSelector"
         android:layout_alignParentStart="true">
         <com.example.genet42.kubaruchan.statistics.GraphView
             android:id="@+id/graphView1"

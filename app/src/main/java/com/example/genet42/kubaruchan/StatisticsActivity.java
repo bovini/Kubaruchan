@@ -3,6 +3,11 @@ package com.example.genet42.kubaruchan;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.genet42.kubaruchan.statistics.CSVManager;
 import com.example.genet42.kubaruchan.statistics.GraphView;
@@ -20,21 +25,60 @@ import org.afree.data.category.DefaultCategoryDataset;
 import org.afree.graphics.GradientColor;
 import org.afree.graphics.SolidColor;
 
+import java.util.Calendar;
+
 public class StatisticsActivity extends AppCompatActivity {
 
+    CSVManager cman = CSVManager.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistics);
+        final GraphView spcv = (GraphView) findViewById(R.id.graphView1);
+        Spinner csvSelector = (Spinner) findViewById(R.id.CSVSelector);
+        if(!cman.getCSVList().isEmpty()){
+            DefaultCategoryDataset dataset = createDataset(cman.getCSVList().get(0));
+            AFreeChart chart = createChart(dataset);
+            spcv.setChart(chart);
+        }else{
 
-        GraphView spcv = (GraphView) findViewById(R.id.graphView1);
+        }
+        setCsvSelector(csvSelector);
 
-        CategoryDataset dataset = createDataset();
-        AFreeChart chart = createChart(dataset);
+        csvSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int position, long id) {
+                Spinner spinner = (Spinner) parent;
+                String item = (String) spinner.getSelectedItem();
+                item = item.substring(0, 4) + "_" + item.substring(5, 7) + ".csv";
+                AFreeChart chart = createChart(createDataset(item));
+                spcv.setChart(chart);
+            }
 
-        spcv.setChart(chart);
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+        }
+
+    protected void onRestart(){
+        super.onRestart();
+
     }
 
+    private void setCsvSelector(Spinner csvSelector){
+        setSpinner(csvSelector, (String[]) cman.getCSVList().toArray() );
+    }
+
+    private void setSpinner(Spinner spinner,String[] arr){
+        for(int i = 0; i < arr.length; i++){
+            arr[i] = arr[i].substring(0,4)+"年"+arr[i].substring(5,7)+"月";
+        }
+        ArrayAdapter adapter = new  ArrayAdapter(this, android.R.layout.simple_spinner_item, arr);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+    }
     /**
      * グラフを作成する
      * @param dataset データセット
@@ -85,11 +129,8 @@ public class StatisticsActivity extends AppCompatActivity {
         return chart;
     }
 
-    private CategoryDataset createDataset() {
-        CSVManager cman = CSVManager.getInstance();
-
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
-        return dataset;
+    private DefaultCategoryDataset createDataset(String filename) {
+        return cman.makeDataset(filename);
     }
+
 }
