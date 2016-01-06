@@ -36,6 +36,7 @@ public class StatisticsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_statistics);
         final GraphView spcv = (GraphView) findViewById(R.id.graphView1);
         Spinner csvSelector = (Spinner) findViewById(R.id.CSVSelector);
+        //初期グラフの表示
         if(!cman.getCSVList().isEmpty()){
             DefaultCategoryDataset dataset = createDataset(cman.getCSVList().get(0));
             AFreeChart chart = createChart(dataset);
@@ -45,6 +46,7 @@ public class StatisticsActivity extends AppCompatActivity {
         }
         setCsvSelector(csvSelector);
 
+        //ドロップダウンリストをいじった時の処理
         csvSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
@@ -60,17 +62,21 @@ public class StatisticsActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
-        }
-
-    protected void onRestart(){
-        super.onRestart();
-
     }
 
+    /**
+     * スピナーに年月を入れる
+     * @param csvSelector 年月を入れるスピナー
+     */
     private void setCsvSelector(Spinner csvSelector){
         setSpinner(csvSelector, (String[]) cman.getCSVList().toArray() );
     }
 
+    /**
+     * スピナーに文字列の配列を入れる
+     * @param spinner 文字列を入れるスピナー
+     * @param arr 文字列の配列
+     */
     private void setSpinner(Spinner spinner,String[] arr){
         for(int i = 0; i < arr.length; i++){
             arr[i] = arr[i].substring(0,4)+"年"+arr[i].substring(5,7)+"月";
