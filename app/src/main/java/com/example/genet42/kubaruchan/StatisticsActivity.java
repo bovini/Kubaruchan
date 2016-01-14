@@ -25,20 +25,23 @@ import org.afree.data.category.DefaultCategoryDataset;
 import org.afree.graphics.GradientColor;
 import org.afree.graphics.SolidColor;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.Calendar;
 
 public class StatisticsActivity extends AppCompatActivity {
 
-    CSVManager cman = CSVManager.getInstance();
+    CSVManager cman;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistics);
+        cman = CSVManager.getInstance(getApplicationContext());
         final GraphView spcv = (GraphView) findViewById(R.id.graphView1);
         Spinner csvSelector = (Spinner) findViewById(R.id.CSVSelector);
         //初期グラフの表示
-        if(!cman.getCSVList().isEmpty()){
-            DefaultCategoryDataset dataset = createDataset(cman.getCSVList().get(0));
+        if(!cman.getCSVListLocal().isEmpty()){
+            DefaultCategoryDataset dataset = createDataset(cman.getCSVListLocal().get(0));
             AFreeChart chart = createChart(dataset);
             spcv.setChart(chart);
         }else{
@@ -69,7 +72,8 @@ public class StatisticsActivity extends AppCompatActivity {
      * @param csvSelector 年月を入れるスピナー
      */
     private void setCsvSelector(Spinner csvSelector){
-        setSpinner(csvSelector, (String[]) cman.getCSVList().toArray() );
+        //setSpinner(csvSelector, (String[]) );
+        setSpinner(csvSelector, Arrays.asList(cman.getCSVListLocal().toArray()).toArray(new String[cman.getCSVListLocal().toArray().length]));
     }
 
     /**
@@ -77,14 +81,15 @@ public class StatisticsActivity extends AppCompatActivity {
      * @param spinner 文字列を入れるスピナー
      * @param arr 文字列の配列
      */
-    private void setSpinner(Spinner spinner,String[] arr){
+    private void setSpinner(Spinner spinner, String[] arr){
         for(int i = 0; i < arr.length; i++){
             arr[i] = arr[i].substring(0,4)+"年"+arr[i].substring(5,7)+"月";
         }
-        ArrayAdapter adapter = new  ArrayAdapter(this, android.R.layout.simple_spinner_item, arr);
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, arr);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
     }
+
     /**
      * グラフを作成する
      * @param dataset データセット

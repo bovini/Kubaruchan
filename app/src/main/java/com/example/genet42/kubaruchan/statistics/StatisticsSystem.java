@@ -1,5 +1,7 @@
 package com.example.genet42.kubaruchan.statistics;
 
+import android.content.Context;
+
 import java.util.Calendar;
 
 /**
@@ -11,6 +13,8 @@ public class StatisticsSystem {
      */
     private static StatisticsSystem instance;
 
+    private Context context;
+
     /**
      * CSVManager
      */
@@ -18,8 +22,8 @@ public class StatisticsSystem {
     /**
      * 外から生成させないコンストラクタ
      */
-    private StatisticsSystem(){
-
+    private StatisticsSystem(Context context){
+        this.context = context;
     }
 
     /**
@@ -27,10 +31,11 @@ public class StatisticsSystem {
      *
      * @return StatisticsSystemのインスタンス
      */
-    public static synchronized StatisticsSystem getInstance(){
+    public static synchronized StatisticsSystem getInstance(Context context){
         if (instance == null) {
-            instance = new StatisticsSystem();
+            instance = new StatisticsSystem(context);
         }
+        instance.context = context;
         return instance;
     }
 
@@ -41,7 +46,7 @@ public class StatisticsSystem {
      * @param eval 評価の値
      */
     public void putCSV(Calendar calendar, Evaluation eval) {
-        CSVManager.getInstance().addEvaluation(calendar, eval);
+        CSVManager.getInstance(this.context).addEvaluation(calendar, eval);
     }
 
 

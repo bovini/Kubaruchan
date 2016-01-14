@@ -1,6 +1,7 @@
 package com.example.genet42.kubaruchan.statistics;
 
 import android.app.UiModeManager;
+import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
@@ -8,11 +9,16 @@ import org.afree.data.category.CategoryDataset;
 import org.afree.data.category.DefaultCategoryDataset;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,19 +67,26 @@ public class CSVManager {
     /**
      * 外部ストレージ(SDカード)の場所
      */
-    private final static File PATH = Environment.getExternalStorageDirectory();
+    private final static File PATHreal = Environment.getExternalStorageDirectory();
 
+    /**
+     * テスト用ストレージ
+     */
+    private final static String PATH = "/data/data/Kubaruchan/files/";
 
     /**
      * インスタンス
      */
-    private static CSVManager instance = new CSVManager();
+    private static CSVManager instance;
+
+    private Context context;
 
 
     /**
      * 外から生成させないコンストラクタ
      */
-    private CSVManager(){
+    private CSVManager(Context context){
+        this.context = context;
 
     }
 
@@ -82,10 +95,11 @@ public class CSVManager {
      *
      * @return  CSVManagerのインスタンス
      */
-    public static synchronized CSVManager getInstance(){
+    public static synchronized CSVManager getInstance(Context context){
         if (instance == null){
-            instance = new CSVManager();
+            instance = new CSVManager(context);
         }
+        instance.context = context;
         return instance;
     }
 
@@ -102,7 +116,7 @@ public class CSVManager {
         int day = Integer.parseInt(d.format(calendar.getTime()));
         String filename = fnm.format(calendar.getTime());
 
-        updateCSV(PATH +"/"+ filename, day, eval);
+        updateCSVLocal(filename +".csv", day, eval);
     }
 
     /**
@@ -132,6 +146,24 @@ public class CSVManager {
     }
 
     /**
+     * 受け取った評価を以下の形式のcsvファイルとして記録する
+     * filename: yyyy_mm.csv
+     * 記入規則: dd,[UMMM],[SOSO],[GOOD]
+     * @param filename
+     * @param day
+     * @param eval
+     */
+    private void updateCSVLocal(String filename, int day, Evaluation eval){
+        try{
+            FileOutputStream fos = context.openFileOutput(filename,context.MODE_PRIVATE);
+            fos.close();
+            overwriteLocal(filename, day, eval);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * ファイルを上書きする
      *  @param filepath ファイルの保存先
      * @param day 日付
@@ -143,6 +175,23 @@ public class CSVManager {
         initializeNullRows(toWrite);
         updateRow(day, eval, toWrite);
         writeAsCSV(filepath, toWrite);
+
+    }
+
+    /**
+     *     /**
+     * ファイルを上書きする
+     * @param filename
+     * @param day
+     * @param eval
+     * @throws IOException
+     */
+    private void overwriteLocal(String filename, int day, Evaluation eval) throws IOException {
+
+        int [][] toWrite = readCSVLocal(filename);
+        initializeNullRows(toWrite);
+        updateRow(day, eval, toWrite);
+        writeAsCSVLocal(filename, toWrite);
 
     }
 
@@ -204,6 +253,34 @@ public class CSVManager {
         }
         return results;
     }
+    /**
+     * csvファイルを読み込み,[行][列]の形式で返す
+     * @param filename 読込先のファイル
+     * @return 読み込んだファイル
+     * @throws IOException
+     */
+    private int[][] readCSVLocal(String filename){
+        int [][] results = new int[MAX_DAYS][];
+        FileInputStream fis;
+        try {
+            fis = context.openFileInput(filename);
+            final BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+            String line;
+            while (( line = br.readLine()) != null) {
+                String [] result = line.split(",");
+                int d = Integer.parseInt(result[INDEX_DAY]);
+                results [ d - 1 ] = new int[result.length];
+                for( int i = 0; i < result.length; i++ ) {
+                    results[ d - 1 ] [i] = Integer.parseInt(result[i]);
+                }
+            }
+
+        }catch(IOException e){
+            Log.e("readerr","エラーはファイル読み込みにて発生");
+        }
+
+        return results;
+    }
 
     /**
      * 指定されたファイルパスに指定されたデータをcsvとして書き込む
@@ -211,7 +288,7 @@ public class CSVManager {
      * @param toWrite 書き込むデータ([行][列]の形式で定義される)
      * @throws IOException
      */
-    private void writeAsCSV(String filepath, int[][] toWrite) throws IOException {
+    private void writeAsCSV(String filepath, int[][] toWrite) throws IOException{
         FileWriter fw = new FileWriter(filepath);
         for (int i = 0; i < toWrite.length; i++) {
             for (int j = 0; j < COLUMN; j++) {
@@ -226,12 +303,32 @@ public class CSVManager {
     }
 
     /**
+     * 指定されたファイルパスに指定されたデータをcsvとして書き込む
+     * @param filename
+     * @param toWrite
+     * @throws IOException
+     */
+    private void writeAsCSVLocal(String filename, int[][] toWrite) throws IOException{
+        FileOutputStream fos = context.openFileOutput(filename,context.MODE_PRIVATE);
+        for (int i = 0; i < toWrite.length; i++) {
+            for (int j = 0; j < COLUMN; j++) {
+                fos.write(Integer.toString(toWrite[i][j]).getBytes());
+                if (j < COLUMN - 1) {
+                    fos.write(",".getBytes());
+                } else {
+                    fos.write("\n".getBytes());
+                }
+            }
+        }
+    }
+
+    /**
      * あるファイル名を入力するとそのファイルを元に作成したグラフのデータセットを返す
      * @param filename ファイル名
      * @return グラフ作成用のデータセット
      */
     public DefaultCategoryDataset makeDataset(String filename){
-        return getDataset(PATH + "/" + filename);
+        return getDatasetLocal(filename);
     }
 
     /**
@@ -239,14 +336,28 @@ public class CSVManager {
      * @return
      */
     public List<String> getCSVList(){
-        List <String> csvList = new ArrayList<String>();
-        File [] csvFile = new File(PATH.getPath()).listFiles();
+        List <String> csvList = new ArrayList<>();
+        File [] csvFile = new File(PATH).listFiles();
         for(int i = 0; i < csvFile.length; i++){
             if(csvFile[i].isFile() && csvFile[i].getName().endsWith(".csv")){
                 csvList.add(csvFile[i].getName());
             }
         }
         return csvList;
+    }
+
+    /**
+     * 保存されているcsvファイルの一覧を返す
+     * @return csvファイルの一覧
+     */
+    public List<String> getCSVListLocal(){
+        List<String> csvFilenames = new ArrayList<>();
+        for (String filename:context.fileList()) {
+            if(filename.contains(".csv") ){
+                csvFilenames.add(filename);
+            }
+        }
+        return csvFilenames;
     }
 
     /**
@@ -278,6 +389,37 @@ public class CSVManager {
                         dataset.addValue(evaluations[i][j], GOOD, String.valueOf(i + 1));
                         break;
 
+                }
+            }
+        }
+
+        return dataset;
+    }
+
+    /**
+     * あるcsvファイルのパスを入力するとグラフのデータセットを返す
+     * @param filename ファイルのパス
+     * @return グラフ用のデータセット
+     */
+    private DefaultCategoryDataset getDatasetLocal(String filename){
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        int evaluations[][];
+        evaluations = readCSVLocal(filename);
+        String UMMM = "UMMM";
+        String SOSO = "SOSO";
+        String GOOD = "GOOD";
+        for(int i = 0; i< evaluations.length; i++){
+            for(int j = 0; j< evaluations[i].length; j++){
+                switch (j) {
+                    case INDEX_SOSO:
+                        dataset.addValue(evaluations[i][j], SOSO, String.valueOf(i + 1));
+                        break;
+                    case INDEX_UMMM:
+                        dataset.addValue(evaluations[i][j], UMMM, String.valueOf(i + 1));
+                        break;
+                    case INDEX_GOOD:
+                        dataset.addValue(evaluations[i][j], GOOD, String.valueOf(i + 1));
+                        break;
                 }
             }
         }

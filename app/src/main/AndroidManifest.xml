@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.genet42.kubaruchan" >
+    package="com.example.genet42.kubaruchan">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.WRITE_DATA_DIRECTORY" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="試食品配るちゃん"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
-        <activity android:name=".MainActivity" >
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,8 +20,8 @@
         </activity>
         <activity
             android:name=".StatisticsActivity"
-            android:screenOrientation="landscape" >
-        </activity>
+            android:screenOrientation="landscape"></activity>
+        <activity android:name=".TestActivity"></activity>
     </application>
 
 </manifest>
