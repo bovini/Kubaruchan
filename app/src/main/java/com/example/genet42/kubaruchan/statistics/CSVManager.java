@@ -116,8 +116,9 @@ public class CSVManager {
         int day = Integer.parseInt(d.format(calendar.getTime()));
         String filename = fnm.format(calendar.getTime());
 
-        updateCSVLocal(filename +".csv", day, eval);
+        updateCSVLocal(filename + ".csv", day, eval);
     }
+
 
     /**
      * 受け取った評価を以下の形式のcsvファイルとして記録する
@@ -327,8 +328,8 @@ public class CSVManager {
      * @param filename ファイル名
      * @return グラフ作成用のデータセット
      */
-    public DefaultCategoryDataset makeDataset(String filename){
-        return getDatasetLocal(filename);
+    public Statistics makeDataset(String filename){
+        return getDataset(filename);
     }
 
     /**
@@ -365,28 +366,25 @@ public class CSVManager {
      * @param filepath ファイルのパス
      * @return グラフ用のデータセット
      */
-    private DefaultCategoryDataset getDataset(String filepath){
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    private Statistics getDataset(String filepath){
+        Statistics dataset = new Statistics();
         int evaluations[][] = new int[COLUMN][];
         try {
             evaluations = readCSV(filepath);
         }catch(IOException e){
             e.printStackTrace();
         }
-        String UMMM = "UMMM";
-        String SOSO = "SOSO";
-        String GOOD = "GOOD";
         for(int i = 0; i< evaluations.length; i++){
             for(int j = 0; j< evaluations[i].length; j++){
                 switch (j) {
                     case INDEX_SOSO:
-                        dataset.addValue(evaluations[i][j], SOSO, String.valueOf(i + 1));
+                        dataset.addSoso(i, evaluations[i][j]);
                         break;
                     case INDEX_UMMM:
-                        dataset.addValue(evaluations[i][j], UMMM, String.valueOf(i + 1));
+                        dataset.addUmmm(i, evaluations[i][j]);
                         break;
                     case INDEX_GOOD:
-                        dataset.addValue(evaluations[i][j], GOOD, String.valueOf(i + 1));
+                        dataset.addGood(i, evaluations[i][j]);
                         break;
 
                 }
@@ -396,36 +394,6 @@ public class CSVManager {
         return dataset;
     }
 
-    /**
-     * あるcsvファイルのパスを入力するとグラフのデータセットを返す
-     * @param filename ファイルのパス
-     * @return グラフ用のデータセット
-     */
-    private DefaultCategoryDataset getDatasetLocal(String filename){
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        int evaluations[][];
-        evaluations = readCSVLocal(filename);
-        String UMMM = "UMMM";
-        String SOSO = "SOSO";
-        String GOOD = "GOOD";
-        for(int i = 0; i< evaluations.length; i++){
-            for(int j = 0; j< evaluations[i].length; j++){
-                switch (j) {
-                    case INDEX_SOSO:
-                        dataset.addValue(evaluations[i][j], SOSO, String.valueOf(i + 1));
-                        break;
-                    case INDEX_UMMM:
-                        dataset.addValue(evaluations[i][j], UMMM, String.valueOf(i + 1));
-                        break;
-                    case INDEX_GOOD:
-                        dataset.addValue(evaluations[i][j], GOOD, String.valueOf(i + 1));
-                        break;
-                }
-            }
-        }
-
-        return dataset;
-    }
 
 
 }
