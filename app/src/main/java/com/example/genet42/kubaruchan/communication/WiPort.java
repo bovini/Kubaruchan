@@ -53,7 +53,6 @@ public class WiPort {
      * @param period CP を確認する間隔 [ms]
      */
     public WiPort(int period) {
-
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override

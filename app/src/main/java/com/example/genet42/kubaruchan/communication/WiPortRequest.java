@@ -59,6 +59,11 @@ public class WiPortRequest {
         if (done) {
             throw new IllegalStateException("this request has already done.");
         }
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         emergency = !emergency;
         evaluation = evals[index];
         index = ++index == evals.length ? 0 : index;

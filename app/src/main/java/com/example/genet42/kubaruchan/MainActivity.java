@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         wiPort.setOnEmergencyChangeListener(new WiPort.EmergencyChangeListener() {
             @Override
             public void onEmergencyChanged(boolean isEmergency) {
+                Log.d("onEmergencyChange", Boolean.toString(isEmergency));
                 indicator.updateIndication(isEmergency);
             }
         });
