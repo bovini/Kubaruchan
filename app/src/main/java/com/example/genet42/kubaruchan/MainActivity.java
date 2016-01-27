@@ -13,9 +13,20 @@ import com.example.genet42.kubaruchan.statistics.Evaluation;
 import com.example.genet42.kubaruchan.statistics.StatisticsSystem;
 import com.example.genet42.kubaruchan.ui.Indicator;
 
+import java.net.InetAddress;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
+    /**
+     * WiPortのIPアドレスの規定値
+     */
+    private static final String ADDR_WIPORT = "192.168.64.208";
+
+    /**
+     * WiPortのCPの状態設定用ポート番号の規定値
+     */
+    private static final int PORT_WIPORT_CP = 30704;
+
     /**
      * WiPort を確認する間隔 [ms]
      */
@@ -34,7 +45,14 @@ public class MainActivity extends AppCompatActivity {
         final Indicator indicator = new Indicator(textView);
 
         // わいぽーと
-        final WiPort wiPort = new WiPort(PERIOD_CHECK_WIPORT);
+        InetAddress host = null;
+        try {
+            host = InetAddress.getByName(ADDR_WIPORT);
+        } catch (Exception e) {
+            e.printStackTrace();
+            finish();
+        }
+        final WiPort wiPort = new WiPort(host, PORT_WIPORT_CP, PERIOD_CHECK_WIPORT);
         wiPort.setOnEmergencyChangeListener(new WiPort.EmergencyChangeListener() {
             @Override
             public void onEmergencyChanged(boolean isEmergency) {

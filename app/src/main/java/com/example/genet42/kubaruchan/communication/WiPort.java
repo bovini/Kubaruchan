@@ -1,7 +1,11 @@
 package com.example.genet42.kubaruchan.communication;
 
+import android.util.Log;
+
 import com.example.genet42.kubaruchan.statistics.Evaluation;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -48,32 +52,38 @@ public class WiPort {
     private Evaluation evaluation = Evaluation.NULL;
 
     /**
-     * CP の確認間隔を指定して生成．
+     * WiPortのIPアドレスとリモートアドレスおよび CP の確認間隔を指定して生成．
      *
+     * @param address IPアドレス.
+     * @param port ポート番号.
      * @param period CP を確認する間隔 [ms]
      */
-    public WiPort(int period) {
+    public WiPort(final InetAddress address, final int port, int period) {
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                WiPortRequest request = new WiPortRequest();
-                // 模型車の動作が有効かどうかの設定
-                request.setVehicleActive(active);
-                // 通信
-                request.send();
-                // 緊急かどうかを取得して値に変化があれば通知
-                boolean emgcy = request.isEmergency();
-                if (emgcy != emergency) {
-                    emergencyChangeListener.onEmergencyChanged(emgcy);
+                try {
+                    WiPortRequest request = new WiPortRequest(address, port);
+                    // 模型車の動作が有効かどうかの設定
+                    request.setVehicleActive(active);
+                    // 通信
+                    request.send();
+                    // 緊急かどうかを取得して値に変化があれば通知
+                    boolean emgcy = request.isEmergency();
+                    if (emgcy != emergency) {
+                        emergencyChangeListener.onEmergencyChanged(emgcy);
+                    }
+                    emergency = emgcy;
+                    // 評価値を取得して値が NULL から変化したとき(どれかが押されたとき)だけ通知
+                    Evaluation eval = request.getEvaluation();
+                    if (evaluation == Evaluation.NULL && eval != Evaluation.NULL) {
+                        evaluationListener.onEvaluation(eval);
+                    }
+                    evaluation = eval;
+                } catch (IOException e) {
+                    Log.e("WiPort", e.toString());
                 }
-                emergency = emgcy;
-                // 評価値を取得して値が NULL から変化したとき(どれかが押されたとき)だけ通知
-                Evaluation eval = request.getEvaluation();
-                if (evaluation == Evaluation.NULL && eval != Evaluation.NULL) {
-                    evaluationListener.onEvaluation(eval);
-                }
-                evaluation = eval;
             }
         }, 0, period);
     }

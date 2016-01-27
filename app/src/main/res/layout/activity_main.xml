@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.example.genet42.kubaruchan.MainActivity">
 
-    <ToggleButton
+    <com.example.genet42.kubaruchan.ui.ColorfulToggleButton
         android:layout_width="wrap_content"
         android:layout_height="256dp"
         android:id="@+id/toggleButton"
@@ -15,23 +15,24 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:textSize="100dp"
+        android:textSize="100sp"
         android:checked="false"
         android:text=""
-        android:textOn="動作停止"
-        android:textOff="動作開始" />
+        android:textOn="走行停止"
+        android:textOff="走行開始" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="128dp"
         android:text="アンケート結果"
         android:id="@+id/button"
-        android:layout_alignParentBottom="true"
+        android:textSize="30dp"
+        android:layout_above="@+id/button2"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:textSize="30dp" />
+        android:background="#ffaf79" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -49,5 +50,16 @@
         android:layout_above="@+id/toggleButton"
         android:gravity="center"
         android:textColor="#808080" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:text="TEST"
+        android:id="@+id/button2"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

@@ -12,11 +12,13 @@ import org.w3c.dom.Text;
  */
 public class Indicator {
     private static final int COLOR_TEXT_EMERGENCY = 0xFF000000;
-    private static final int COLOR_TEXT_PEACETIME = 0xFF808080;
+    private static final int COLOR_TEXT_PEACETIME = 0xFFA6A6A6;
     private static final int COLOR_BG_EMERGENCY = 0xFFFF0000;
     private static final int COLOR_BG_PEACETIME = 0xFFFFFFFF;
-    private static final String TEXT_PEACETIME = "通知があるとここに表示されます";
+    private static final String TEXT_PEACETIME = "異常なし";
     private static final String TEXT_EMERGENCY = "試食品がありません\nor\n転倒の可能性あり";
+    private static final int SIZE_TEXT_EMERGENCY = 80;
+    private static final int SIZE_TEXT_PEACETIME = 40;
 
     private final Handler handler = new Handler();
 
@@ -50,7 +52,7 @@ public class Indicator {
                 // 文字列を更新
                 textView.setText(isEmergency ? TEXT_EMERGENCY : TEXT_PEACETIME);
                 // 文字の大きさを更新
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, isEmergency ? 80 : 30);
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, isEmergency ? SIZE_TEXT_EMERGENCY : SIZE_TEXT_PEACETIME);
             }
         });
     }
