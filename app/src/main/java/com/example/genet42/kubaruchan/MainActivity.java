@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // 統計システム
-        final StatisticsSystem statisticsSystem = StatisticsSystem.getInstance();
+        final StatisticsSystem statisticsSystem = StatisticsSystem.getInstance(this);
 
         // やばいときに表示するところ
         TextView textView = (TextView) findViewById(R.id.textView);
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onEvaluation(Evaluation evaluation) {
                 Log.d("onEvaluation", evaluation.toString());
-                statisticsSystem.put(Calendar.getInstance(), evaluation);
+                statisticsSystem.putCSV(Calendar.getInstance(), evaluation);
             }
         });
 
@@ -83,18 +83,27 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // アンケート結果
+        Button statButton = (Button) findViewById(R.id.button);
+        statButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
 
         // TEST
         Button testButton = (Button) findViewById(R.id.testButton);
         testButton.setOnTouchListener(new ButtonListener() {
             @Override
             protected void onTouchDown() {
-
+                wiPort.setTest(true);
             }
 
             @Override
             protected void onTouchUp() {
-
+                wiPort.setTest(false);
             }
         });
     }
