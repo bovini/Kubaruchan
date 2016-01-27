@@ -17,7 +17,7 @@ public class WiPortRequest {
     public static final int CP_EVALUATION_0 = 1;
     public static final int CP_EVALUATION_1 = 2;
     public static final int CP_ACTIVE = 3;
-
+    public static final int CP_LED_TEST = 8;
 
     /**
      * WiPortのIPアドレス．
@@ -33,6 +33,11 @@ public class WiPortRequest {
      * 模型車の動作の有効/無効
      */
     private boolean vehicleActive = false;
+
+    /**
+     * テスト用LEDの点灯/滅灯
+     */
+    private boolean ledTest = false;
 
     /**
      * このリクエストが終了しているかどうか
@@ -78,6 +83,13 @@ public class WiPortRequest {
         this.vehicleActive = vehicleActive;
     }
 
+    public void setLEDTest(boolean ledTest) {
+        if (done) {
+            throw new IllegalStateException("this request has already done.");
+        }
+        this.ledTest = ledTest;
+    }
+
     /**
      * リクエストを送信する
      */
@@ -90,6 +102,11 @@ public class WiPortRequest {
             command.setActive(CP_ACTIVE);
         } else {
             command.setInactive(CP_ACTIVE);
+        }
+        if (ledTest) {
+            command.setActive(CP_LED_TEST);
+        } else {
+            command.setInactive(CP_LED_TEST);
         }
         // 送信と確認
         final Socket socket = new Socket(address, port);

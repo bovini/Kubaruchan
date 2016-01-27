@@ -3,14 +3,17 @@ package com.example.genet42.kubaruchan;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.example.genet42.kubaruchan.communication.WiPort;
 import com.example.genet42.kubaruchan.statistics.Evaluation;
 import com.example.genet42.kubaruchan.statistics.StatisticsSystem;
+import com.example.genet42.kubaruchan.ui.ButtonListener;
 import com.example.genet42.kubaruchan.ui.Indicator;
 
 import java.net.InetAddress;
@@ -74,6 +77,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 wiPort.setActive(isChecked);
+            }
+        });
+
+        // アンケート結果
+
+        // TEST
+        Button testButton = (Button) findViewById(R.id.testButton);
+        testButton.setOnTouchListener(new ButtonListener() {
+            @Override
+            protected void onTouchDown() {
+
+            }
+
+            @Override
+            protected void onTouchUp() {
+
             }
         });
     }

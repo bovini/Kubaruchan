@@ -42,6 +42,11 @@ public class WiPort {
     private boolean active = false;
 
     /**
+     * WiPort上のテスト用のLEDを点灯させるかどうか
+     */
+    private boolean test = false;
+
+    /**
      * 緊急かどうか
      */
     private boolean emergency= false;
@@ -52,40 +57,55 @@ public class WiPort {
     private Evaluation evaluation = Evaluation.NULL;
 
     /**
+     * リクエストのための TimerTask
+     */
+    private class RequestTimerTask extends TimerTask {
+        private final InetAddress address;
+        private final int port;
+
+        public RequestTimerTask(InetAddress address, int port) {
+            this.address = address;
+            this.port = port;
+        }
+
+        @Override
+        public void run() {
+            try {
+                WiPortRequest request = new WiPortRequest(address, port);
+                // 模型車の動作が有効かどうかの設定
+                request.setVehicleActive(active);
+                // テスト用LEDの点灯状態の設定
+                request.setLEDTest(test);
+                // 通信
+                request.send();
+                // 緊急かどうかを取得して値に変化があれば通知
+                boolean emgcy = request.isEmergency();
+                if (emgcy != emergency) {
+                    emergencyChangeListener.onEmergencyChanged(emgcy);
+                }
+                emergency = emgcy;
+                // 評価値を取得して値が NULL から変化したとき(どれかが押されたとき)だけ通知
+                Evaluation eval = request.getEvaluation();
+                if (evaluation == Evaluation.NULL && eval != Evaluation.NULL) {
+                    evaluationListener.onEvaluation(eval);
+                }
+                evaluation = eval;
+            } catch (IOException e) {
+                Log.e("WiPort", e.toString());
+            }
+        }
+    }
+
+    /**
      * WiPortのIPアドレスとリモートアドレスおよび CP の確認間隔を指定して生成．
      *
      * @param address IPアドレス.
      * @param port ポート番号.
      * @param period CP を確認する間隔 [ms]
      */
-    public WiPort(final InetAddress address, final int port, int period) {
+    public WiPort(InetAddress address, int port, int period) {
         Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    WiPortRequest request = new WiPortRequest(address, port);
-                    // 模型車の動作が有効かどうかの設定
-                    request.setVehicleActive(active);
-                    // 通信
-                    request.send();
-                    // 緊急かどうかを取得して値に変化があれば通知
-                    boolean emgcy = request.isEmergency();
-                    if (emgcy != emergency) {
-                        emergencyChangeListener.onEmergencyChanged(emgcy);
-                    }
-                    emergency = emgcy;
-                    // 評価値を取得して値が NULL から変化したとき(どれかが押されたとき)だけ通知
-                    Evaluation eval = request.getEvaluation();
-                    if (evaluation == Evaluation.NULL && eval != Evaluation.NULL) {
-                        evaluationListener.onEvaluation(eval);
-                    }
-                    evaluation = eval;
-                } catch (IOException e) {
-                    Log.e("WiPort", e.toString());
-                }
-            }
-        }, 0, period);
+        timer.scheduleAtFixedRate(new RequestTimerTask(address, port), 0, period);
     }
 
     /**
@@ -115,5 +135,14 @@ public class WiPort {
      */
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    /**
+     * WiPort上のテスト用LEDを点灯または滅灯させる．
+     *
+     * @param test true で LED が点灯
+     */
+    public void setTest(boolean test) {
+        this.test = test;
     }
 }
