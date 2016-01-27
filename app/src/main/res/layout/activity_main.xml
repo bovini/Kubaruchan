@@ -6,12 +6,48 @@
     android:layout_height="match_parent"
     tools:context="com.example.genet42.kubaruchan.MainActivity">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/imageView"
-        android:layout_alignParentTop="true"
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="256dp"
+        android:id="@+id/toggleButton"
+        android:layout_above="@+id/button"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textSize="100dp"
+        android:checked="false"
+        android:text=""
+        android:textOn="動作停止"
+        android:textOff="動作開始" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="128dp"
+        android:text="アンケート結果"
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textSize="30dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:id="@+id/textView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:typeface="sans"
+        android:layout_above="@+id/toggleButton"
+        android:gravity="center"
+        android:textColor="#808080" />
 
 </RelativeLayout>

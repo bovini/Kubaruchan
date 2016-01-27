@@ -18,4 +18,9 @@ public enum Evaluation {
      * うまい
      */
     GOOD,
+
+    /**
+     * どの評価値でもない
+     */
+    NULL,
 }
