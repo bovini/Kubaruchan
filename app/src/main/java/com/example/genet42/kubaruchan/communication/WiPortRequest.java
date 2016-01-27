@@ -1,5 +1,6 @@
 package com.example.genet42.kubaruchan.communication;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.genet42.kubaruchan.statistics.Evaluation;
@@ -7,16 +8,19 @@ import com.example.genet42.kubaruchan.statistics.Evaluation;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * わいぽーとに模型車の有効/無効を設定して評価値と模型車が緊急かどうかを取得するためのリクエスト
  */
 public class WiPortRequest {
 
-    public static final int CP_EMERGENCY = 0;
-    public static final int CP_EVALUATION_0 = 1;
-    public static final int CP_EVALUATION_1 = 2;
-    public static final int CP_ACTIVE = 3;
+    public static final int CP_ACTIVE = 0;
+    public static final int CP_EMERGENCY = 1;
+    public static final int CP_EVALUATION_0 = 2;
+    public static final int CP_EVALUATION_1 = 3;
     public static final int CP_LED_TEST = 8;
 
     /**
@@ -59,6 +63,48 @@ public class WiPortRequest {
      */
     private WiPortCommand command = new WiPortCommand();
 
+
+    private class AsyncRequestTask extends AsyncTask<Void, Void, IOException> {
+        @Override
+        protected IOException doInBackground(Void... params) {
+            try {
+                // 送信と確認
+                final Socket socket = new Socket(address, port);
+                // 指示を送信
+                Log.d("TCP", "sending...");
+                command.sendTo(new Sender() {
+                    @Override
+                    public void send(byte[] b) throws IOException {
+                        socket.getOutputStream().write(b);
+                    }
+                });
+                Log.d("TCP", "sent");
+                // 返信を確認
+                Log.d("TCP", "receiving...");
+                command.checkReply(new Receiver() {
+                    @Override
+                    public int receive(byte[] b) throws IOException {
+                        return socket.getInputStream().read(b);
+                    }
+                });
+                Log.d("TCP", "received");
+                socket.close();
+            } catch (IOException e) {
+                return e;
+            }
+            return null;
+        }
+
+        public void execute(int timeout)
+                throws IOException, InterruptedException, ExecutionException, TimeoutException {
+            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            IOException e = get(timeout, TimeUnit.MILLISECONDS);
+            if (e != null) {
+                throw e;
+            }
+        }
+    }
+
     /**
      * WiPortのIPアドレスとリモートアドレスを指定して作成する.
      *
@@ -66,7 +112,7 @@ public class WiPortRequest {
      * @param port ポート番号.
      * @throws IOException 接続時にエラーが発生した場合
      */
-    public WiPortRequest(InetAddress address, int port) throws IOException {
+    public WiPortRequest(InetAddress address, int port) {
         this.address = address;
         this.port = port;
     }
@@ -92,43 +138,19 @@ public class WiPortRequest {
 
     /**
      * リクエストを送信する
+     *
+     * @param timeout タイムアウト [ms]
      */
-    public void send() throws IOException {
+    public void send(int timeout) throws IOException, InterruptedException, ExecutionException, TimeoutException {
         if (done) {
             throw new IllegalStateException("this request has already done.");
         }
         // コマンド作成
-        if (vehicleActive) {
-            command.setActive(CP_ACTIVE);
-        } else {
-            command.setInactive(CP_ACTIVE);
-        }
-        if (ledTest) {
-            command.setActive(CP_LED_TEST);
-        } else {
-            command.setInactive(CP_LED_TEST);
-        }
-        // 送信と確認
-        final Socket socket = new Socket(address, port);
-        // 指示を送信
-        Log.i("TCP", "sending...");
-        command.sendTo(new Sender() {
-            @Override
-            public void send(byte[] b) throws IOException {
-                socket.getOutputStream().write(b);
-            }
-        });
-        Log.i("TCP", "sent");
-        // 返信を確認
-        Log.i("TCP", "receiving...");
-        command.checkReply(new Receiver() {
-            @Override
-            public int receive(byte[] b) throws IOException {
-                return socket.getInputStream().read(b);
-            }
-        });
-        Log.i("TCP", "received");
-        socket.close();
+        command.set(CP_ACTIVE, vehicleActive);
+        command.set(CP_LED_TEST, ledTest);
+        // 送信と確認 (失敗すると例外が投げられてこのメソッドを抜ける)
+        new AsyncRequestTask().execute(timeout);
+        // 値を更新 (送信と確認の成功時)
         emergency = command.valueAt(CP_EMERGENCY) == 1;
         int raw_eval = command.valueAt(CP_EVALUATION_0) + (command.valueAt(CP_EVALUATION_1) << 1);
         evaluation = Evaluation.toEvaluation(raw_eval);
@@ -158,4 +180,5 @@ public class WiPortRequest {
         }
         return evaluation;
     }
+
 }

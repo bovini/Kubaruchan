@@ -42,23 +42,18 @@ public class WiPortCommand {
     private byte[] reply;
 
     /**
-     * 指定された番号のCPをアクティブにする．
+     * 指定された番号のCPをアクティブまたは非アクティブにする．
      *
      * @param numberCP CP番号
+     * @param active trueでアクティブにする
      */
-    public void setActive(int numberCP) {
+    public void set(int numberCP, boolean active) {
         byte data = updateMask(numberCP);
-        states[numberCP / Byte.SIZE] |= data;
-    }
-
-    /**
-     * 指定された番号のCPを非アクティブにする．
-     *
-     * @param numberCP CP番号
-     */
-    public void setInactive(int numberCP) {
-        byte data = updateMask(numberCP);
-        states[numberCP / Byte.SIZE] &= ~ data;
+        if (active) {
+            states[numberCP / Byte.SIZE] |= data;
+        } else {
+            states[numberCP / Byte.SIZE] &= ~ data;
+        }
     }
 
     /**

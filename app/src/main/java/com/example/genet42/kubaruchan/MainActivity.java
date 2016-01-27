@@ -3,7 +3,6 @@ package com.example.genet42.kubaruchan;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.Toast;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -35,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
     /**
      * WiPort を確認する間隔 [ms]
      */
-    public static final int PERIOD_CHECK_WIPORT = 100;
+    public static final int PERIOD_WIPORT = 100;
+    public static final int TIMEOUT_WIPORT = 500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             finish();
         }
-        final WiPort wiPort = new WiPort(host, PORT_WIPORT_CP, PERIOD_CHECK_WIPORT);
+        final WiPort wiPort = new WiPort(host, PORT_WIPORT_CP, PERIOD_WIPORT, TIMEOUT_WIPORT);
         wiPort.setOnEmergencyChangeListener(new WiPort.EmergencyChangeListener() {
             @Override
             public void onEmergencyChanged(boolean isEmergency) {
