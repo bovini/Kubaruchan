@@ -17,7 +17,7 @@ public class Indicator {
     private static final int COLOR_BG_PEACETIME = 0xFFFFFFFF;
     private static final String TEXT_PEACETIME = "異常なし";
     private static final String TEXT_EMERGENCY = "試食品がありません\nor\n転倒の可能性あり";
-    private static final int SIZE_TEXT_EMERGENCY = 80;
+    private static final int SIZE_TEXT_EMERGENCY = 60;
     private static final int SIZE_TEXT_PEACETIME = 40;
 
     private final Handler handler = new Handler();

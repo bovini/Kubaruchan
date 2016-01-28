@@ -9,32 +9,44 @@ public class Statistics {
     private int[] good = new int[CSVManager.MAX_DAYS];
     private int[] soso = new int[CSVManager.MAX_DAYS];
     private int[] ummm = new int[CSVManager.MAX_DAYS];
+    public static final int MAX_DAYS = CSVManager.MAX_DAYS;
 
     public Statistics(){
     }
 
-
-    public void addGood(int day, int umai) {
-        this.good[day]= umai;
+    public void setUmmm(int i, int ummm) {
+        this.ummm[i] = ummm;
     }
 
-    public void addSoso(int day, int soso) {
-        this.soso[day]= soso;
+    public void setGood(int i, int  good) {
+        this.good[i] = good;
     }
 
-    public void addUmmm(int day, int ummm) {
-        this.ummm[day]= ummm;
+    public void setSoso(int i, int soso) {
+        this.soso[i] = soso;
     }
 
-    public int[] getGood() {
-        return good;
+    public void addGood(int day) {
+        this.good[day-1]++;
     }
 
-    public int[] getSoso() {
-        return soso;
+    public void addSoso(int day) {
+        this.soso[day-1]++;
     }
 
-    public int[] getUmmm() {
-        return ummm;
+    public void addUmmm(int day) {
+        this.ummm[day-1]++;
+    }
+
+    public int getGood(int day) {
+        return good[day-1];
+    }
+
+    public int getSoso(int day) {
+        return soso[day-1];
+    }
+
+    public int getUmmm(int day) {
+        return ummm[day-1];
     }
 }

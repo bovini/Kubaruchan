@@ -56,6 +56,8 @@ public class CSVManager {
      */
     public static final int MAX_DAYS = 31;
 
+    Statistics stat;
+
     /**
      *
      */
@@ -110,13 +112,15 @@ public class CSVManager {
      */
     public void addEvaluation(Calendar calendar, Evaluation eval){
 
-        SimpleDateFormat fnm = new SimpleDateFormat("yyyy_mm", Locale.JAPAN);
+
+        SimpleDateFormat fnm = new SimpleDateFormat("yyyy_MM", Locale.JAPAN);
         SimpleDateFormat d = new SimpleDateFormat("dd", Locale.JAPAN);
 
         int day = Integer.parseInt(d.format(calendar.getTime()));
-        String filename = fnm.format(calendar.getTime());
 
-        updateCSVLocal(filename + ".csv", day, eval);
+        String filename = fnm.format(calendar.getTime()) +".csv";
+
+        updateCSVLocal(filename, day, eval);
     }
 
 
@@ -155,11 +159,11 @@ public class CSVManager {
      * @param eval
      */
     private void updateCSVLocal(String filename, int day, Evaluation eval){
+        Log.e("updateCSVLocal","呼ばれた");
         try{
-            FileOutputStream fos = context.openFileOutput(filename,context.MODE_PRIVATE);
-            fos.close();
             overwriteLocal(filename, day, eval);
         }catch(IOException e){
+
             e.printStackTrace();
         }
     }
@@ -188,11 +192,9 @@ public class CSVManager {
      * @throws IOException
      */
     private void overwriteLocal(String filename, int day, Evaluation eval) throws IOException {
-
-        int [][] toWrite = readCSVLocal(filename);
-        initializeNullRows(toWrite);
-        updateRow(day, eval, toWrite);
-        writeAsCSVLocal(filename, toWrite);
+        Log.e("呼ばれた？", "よ");
+        this.stat = getDataset(filename);
+        StatisticsWriteAsCSV(filename, day, eval, getDataset(filename));
 
     }
 
@@ -267,14 +269,22 @@ public class CSVManager {
             fis = context.openFileInput(filename);
             final BufferedReader br = new BufferedReader(new InputStreamReader(fis));
             String line;
-            while (( line = br.readLine()) != null) {
+
+            while ( (line = br.readLine()) != null) {
+                Log.e("readCSVLocal",line);
                 String [] result = line.split(",");
                 int d = Integer.parseInt(result[INDEX_DAY]);
                 results [ d - 1 ] = new int[result.length];
+                String out = "";
                 for( int i = 0; i < result.length; i++ ) {
+                    out = out + Integer.parseInt(result[i]);
                     results[ d - 1 ] [i] = Integer.parseInt(result[i]);
                 }
-            }
+                Log.i("readCSVLocal",out);
+            }br.close();
+
+            if(line == null)
+                Log.e("readCSVLocal","LineNULL");
 
         }catch(IOException e){
             Log.e("readerr","エラーはファイル読み込みにて発生");
@@ -311,16 +321,41 @@ public class CSVManager {
      */
     private void writeAsCSVLocal(String filename, int[][] toWrite) throws IOException{
         FileOutputStream fos = context.openFileOutput(filename,context.MODE_PRIVATE);
+        String write = "";
+        Statistics stat = new Statistics();
         for (int i = 0; i < toWrite.length; i++) {
             for (int j = 0; j < COLUMN; j++) {
-                fos.write(Integer.toString(toWrite[i][j]).getBytes());
+                write = write + Integer.toString(toWrite[i][j]);
+                //fos.write(Integer.toString(toWrite[i][j]).getBytes());
                 if (j < COLUMN - 1) {
-                    fos.write(",".getBytes());
+                    write = write + ",";
+                    //fos.write(",".getBytes());
                 } else {
-                    fos.write("\n".getBytes());
+                    write = write + "\n";
+                    //fos.write("\n".getBytes());
                 }
+
             }
         }
+        Log.e("write",write);
+        fos.write(write.getBytes());
+    }
+    private void StatisticsWriteAsCSV(String filename, int day, Evaluation eval, Statistics stat) throws IOException{
+        FileOutputStream fos = context.openFileOutput(filename,context.MODE_PRIVATE);
+        String write = "";
+        if(eval == Evaluation.UMMM)
+            stat.addUmmm(day);
+        if(eval == Evaluation.GOOD)
+            stat.addGood(day);
+        if(eval == Evaluation.SOSO)
+            stat.addSoso(day);
+
+        for (int i = 0; i < stat.MAX_DAYS; i++) {
+            write = write + Integer.toString(i + 1) + "," + stat.getSoso(i + 1) + "," + stat.getUmmm(i + 1) + "," + stat.getGood(i + 1) + "\n";
+        }
+        Log.e("write",write);
+        fos.write(write.getBytes());
+        fos.close();
     }
 
     /**
@@ -329,6 +364,7 @@ public class CSVManager {
      * @return グラフ作成用のデータセット
      */
     public Statistics makeDataset(String filename){
+        Log.e("makedataset","mkdtst");
         return getDataset(filename);
     }
 
@@ -363,30 +399,29 @@ public class CSVManager {
 
     /**
      * あるcsvファイルのパスを入力するとグラフのデータセットを返す
-     * @param filepath ファイルのパス
+     * @param filename ファイルの名前
      * @return グラフ用のデータセット
      */
-    private Statistics getDataset(String filepath){
+    private Statistics getDataset(String filename){
+        Log.e("getDataset","open");
         Statistics dataset = new Statistics();
-        int evaluations[][] = new int[COLUMN][];
-        try {
-            evaluations = readCSV(filepath);
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        for(int i = 0; i< evaluations.length; i++){
-            for(int j = 0; j< evaluations[i].length; j++){
-                switch (j) {
-                    case INDEX_SOSO:
-                        dataset.addSoso(i, evaluations[i][j]);
-                        break;
-                    case INDEX_UMMM:
-                        dataset.addUmmm(i, evaluations[i][j]);
-                        break;
-                    case INDEX_GOOD:
-                        dataset.addGood(i, evaluations[i][j]);
-                        break;
+        int [][] evaluations = readCSVLocal(filename);
+        Log.e("readCSVLocalend","owari");
+        if(evaluations [0] != null){
+            for(int i = 0; i< evaluations.length; i++){
+                for(int j = 0; j< evaluations[i].length; j++){
+                    switch (j) {
+                        case INDEX_SOSO:
+                            dataset.setSoso(i, evaluations[i][j]);
+                            break;
+                        case INDEX_UMMM:
+                            dataset.setUmmm(i, evaluations[i][j]);
+                            break;
+                        case INDEX_GOOD:
+                            dataset.setGood(i, evaluations[i][j]);
+                            break;
 
+                    }
                 }
             }
         }
