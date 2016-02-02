@@ -1,6 +1,7 @@
 package com.example.genet42.kubaruchan;
 
 import android.content.Intent;
+import android.media.SoundPool;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,7 @@ import com.example.genet42.kubaruchan.communication.WiPort;
 import com.example.genet42.kubaruchan.statistics.Evaluation;
 import com.example.genet42.kubaruchan.statistics.StatisticsSystem;
 import com.example.genet42.kubaruchan.ui.ButtonListener;
+import com.example.genet42.kubaruchan.ui.Buzzer;
 import com.example.genet42.kubaruchan.ui.Indicator;
 
 import java.net.InetAddress;
@@ -36,6 +38,25 @@ public class MainActivity extends AppCompatActivity {
      */
     public static final int PERIOD_WIPORT = 100;
     public static final int TIMEOUT_WIPORT = 500;
+
+    /**
+     * 模型車がやばいときにならす端末側ブザー
+     */
+    private Buzzer buzzer = new Buzzer(this);
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        buzzer.prepare();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        buzzer.release();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +83,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onEmergencyChanged(boolean isEmergency) {
                 Log.d("onEmergencyChange", Boolean.toString(isEmergency));
+                // 表示更新
                 indicator.updateIndication(isEmergency);
+                // ブザー
+                if (isEmergency) {
+                    buzzer.play();
+                } else {
+                    buzzer.stop();
+                }
             }
         });
         wiPort.setOnEvaluationListener(new WiPort.EvaluationListener() {
@@ -99,11 +127,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected void onTouchDown() {
                 wiPort.setTest(true);
+                buzzer.play();
             }
 
             @Override
             protected void onTouchUp() {
                 wiPort.setTest(false);
+                buzzer.stop();
             }
         });
     }

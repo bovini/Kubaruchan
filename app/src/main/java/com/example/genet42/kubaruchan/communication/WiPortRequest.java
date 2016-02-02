@@ -100,6 +100,7 @@ public class WiPortRequest {
             executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             IOException e = get(timeout, TimeUnit.MILLISECONDS);
             if (e != null) {
+                cancel(true);
                 throw e;
             }
         }
