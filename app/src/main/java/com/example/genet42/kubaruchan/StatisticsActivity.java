@@ -92,6 +92,7 @@ public class StatisticsActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, arr);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+        spinner.setSelection(arr.length - 1);
     }
 
     /**
@@ -123,7 +124,7 @@ public class StatisticsActivity extends AppCompatActivity {
                 soso.setTextColor(Color.WHITE);
                 soso.setBackgroundColor(Color.GREEN);
                 TextView ummm = (TextView) tableRow.findViewById(R.id.rowtext4);
-                ummm.setText("まずい");
+                ummm.setText("う～ん");
                 ummm.setTextSize(25);
                 ummm.setTextColor(Color.WHITE);
                 ummm.setBackgroundColor(Color.BLUE);
