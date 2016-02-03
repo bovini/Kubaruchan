@@ -7,7 +7,9 @@ import com.example.genet42.kubaruchan.statistics.Evaluation;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -64,12 +66,17 @@ public class WiPortRequest {
     private WiPortCommand command = new WiPortCommand();
 
 
-    private class AsyncRequestTask extends AsyncTask<Void, Void, IOException> {
+    private class AsyncRequestTask extends AsyncTask<Integer, Void, IOException> {
         @Override
-        protected IOException doInBackground(Void... params) {
+        protected IOException doInBackground(Integer... params) {
+            if (params == null || params.length != 1) {
+                throw new IllegalArgumentException(Arrays.toString(params));
+            }
+            int timeout = params[0];
             try {
-                // 送信と確認
-                final Socket socket = new Socket(address, port);
+                // 接続(timeout あり)
+                final Socket socket = new Socket();
+                socket.connect(new InetSocketAddress(address, port), timeout);
                 // 指示を送信
                 Log.d("TCP", "sending...");
                 command.sendTo(new Sender() {
@@ -97,10 +104,11 @@ public class WiPortRequest {
 
         public void execute(int timeout)
                 throws IOException, InterruptedException, ExecutionException, TimeoutException {
-            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            // 接続時のタイムアウトを設定
+            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new Integer[] { timeout });
+            // 全体のタイムアウト
             IOException e = get(timeout, TimeUnit.MILLISECONDS);
             if (e != null) {
-                cancel(true);
                 throw e;
             }
         }
@@ -111,7 +119,6 @@ public class WiPortRequest {
      *
      * @param address IPアドレス.
      * @param port ポート番号.
-     * @throws IOException 接続時にエラーが発生した場合
      */
     public WiPortRequest(InetAddress address, int port) {
         this.address = address;

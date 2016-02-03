@@ -113,12 +113,16 @@ public class MainActivity extends AppCompatActivity {
 
         // アンケート結果
         Button statButton = (Button) findViewById(R.id.button);
-        statButton.setOnTouchListener(new View.OnTouchListener() {
+        statButton.setOnTouchListener(new ButtonListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            protected void onTouchDown() {
                 Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
                 startActivity(intent);
-                return false;
+            }
+
+            @Override
+            protected void onTouchUp() {
+                // no operation
             }
         });
 
