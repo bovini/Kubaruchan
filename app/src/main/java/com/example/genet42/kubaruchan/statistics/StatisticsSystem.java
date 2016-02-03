@@ -1,6 +1,7 @@
 package com.example.genet42.kubaruchan.statistics;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.Calendar;
 
@@ -46,6 +47,7 @@ public class StatisticsSystem {
      * @param eval 評価の値
      */
     public void putCSV(Calendar calendar, Evaluation eval) {
+        Log.e("putCSV","呼び出し");
         CSVManager.getInstance(this.context).addEvaluation(calendar, eval);
     }
 

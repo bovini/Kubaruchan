@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * WiPortのIPアドレスの規定値
      */
-    private static final String ADDR_WIPORT = "192.168.64.208";
+    private static final String ADDR_WIPORT = "192.168.64.194";
 
     /**
      * WiPortのCPの状態設定用ポート番号の規定値
@@ -97,7 +97,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onEvaluation(Evaluation evaluation) {
                 Log.d("onEvaluation", evaluation.toString());
-                statisticsSystem.putCSV(Calendar.getInstance(), evaluation);
+                StatisticsSystem statS = StatisticsSystem.getInstance(getApplicationContext());
+                statS.putCSV(Calendar.getInstance(), evaluation);
             }
         });
 

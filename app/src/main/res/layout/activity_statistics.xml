@@ -14,46 +14,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/CSVSelector"
-        android:layout_alignParentStart="false"
-        android:layout_toStartOf="@+id/TEXT_GOOD"
-        android:layout_alignBottom="@+id/TEXT_GOOD"
-        android:layout_alignParentTop="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/TEXT_GOOD"
         android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/TEXT_SOSO" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/TEXT_SOSO"
-        android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/TEXT_UMMM" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/TEXT_UMMM"
-        android:layout_alignParentTop="true"
-        android:layout_alignBottom="@+id/TEXT_SOSO"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TableLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/tableLayout"
+        android:layout_above="@+id/returnButton"
+        android:layout_below="@+id/CSVSelector"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/CSVSelector">
+        android:stretchColumns="1,2,3">
 
         <TableRow
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -63,53 +37,54 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="うまい"
-                android:id="@+id/textView"
-                android:layout_column="0" />
-        </TableRow>
-
-        <TableRow
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="ふつう"
-                android:id="@+id/textView2" />
-        </TableRow>
-
-        <TableRow
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="うーん"
-                android:id="@+id/textView3"
-                android:layout_column="0" />
-        </TableRow>
-
-        <TableRow
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="日付"
-                android:id="@+id/textView4"
-                android:layout_column="0" />
+                android:id="@+id/Date"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="うまい"
+                android:id="@+id/GOOD"
+                android:layout_column="1"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="まあまあ"
+                android:id="@+id/SOSO"
+                android:layout_column="2"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="う～ん"
+                android:id="@+id/UMMM"
+                android:layout_column="3"
+                android:gravity="center" />
+
         </TableRow>
 
     </TableLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="戻る"
+        android:id="@+id/returnButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:background="#001aff"
+        android:textColor="#ffffff"
+        android:textSize="25dp" />
 
 </RelativeLayout>
