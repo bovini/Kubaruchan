@@ -105,7 +105,7 @@ public class WiPortRequest {
         public void execute(int timeout)
                 throws IOException, InterruptedException, ExecutionException, TimeoutException {
             // 接続時のタイムアウトを設定
-            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new Integer[] { timeout });
+            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, timeout);
             // 全体のタイムアウト
             IOException e = get(timeout, TimeUnit.MILLISECONDS);
             if (e != null) {
